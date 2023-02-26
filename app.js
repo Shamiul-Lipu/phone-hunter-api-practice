@@ -20,9 +20,15 @@ const displayPhoneData = (phones, dataLimit) => {
     else {
         showBtn.classList.add('d-none');
     }
-    // displaing phones
+    // if no result found
+    if (phones.length === 0) {
+        document.getElementById('no-result').classList.remove('d-none');
+    }
+    else {
+        document.getElementById('no-result').classList.add('d-none');
+    }
+    // displaying phones
     phones.forEach(phone => {
-        console.log(phone);
         const { brand, image, phone_name, slug } = phone;
         const phoneDiv = document.createElement('div');
         phoneDiv.classList.add('col');
@@ -38,10 +44,20 @@ const displayPhoneData = (phones, dataLimit) => {
         `
         phonesContainer.appendChild(phoneDiv);
     });
+    // stop spinner
+    toggleSpinner(false);
+}
+
+// toggle Spinner functionality
+const toggleSpinner = (isLoading) => {
+    const spinnig = document.getElementById('loding-spinner');
+    isLoading ? spinnig.classList.remove('d-none') : spinnig.classList.add('d-none');
 }
 
 // common function for get input value
 const getSearch = (dataLimit) => {
+    // start spinner
+    toggleSpinner(true)
     const searchText = document.getElementById('search-input').value;
     loadPhoneData(searchText, dataLimit);
 }
@@ -62,5 +78,29 @@ document.getElementById('search-input').addEventListener('keypress', function (e
 document.getElementById('btn-show-all').addEventListener('click', function () {
     getSearch();
 })
+
+// showing phone details on modal
+const loadPhoneDetails = async (id) => {
+    const url = `https://openapi.programming-hero.com/api/phone/${id}`
+    const res = await fetch(url);
+    const details = await res.json();
+    // setting details on modal
+    const { name, releaseDate, mainFeatures } = details.data;
+    console.log(name, releaseDate, mainFeatures);
+    document.getElementById('exampleModalLabel').innerText = name;
+    const detailsDiv = document.getElementById('phone-details');
+
+    detailsDiv.innerHTML = `
+    <h6>Release Date: ${releaseDate ? releaseDate : 'no release date found'}</h6>
+    `
+    const ul = document.createElement('ul');
+    mainFeatures.sensors.forEach(el => {
+        const li = document.createElement('li');
+        li.innerText = el
+        ul.appendChild(li);
+    })
+    detailsDiv.appendChild(ul);
+}
+
 
 loadPhoneData('phone');
