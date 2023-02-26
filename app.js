@@ -1,18 +1,29 @@
 // loading main search Data
-const loadPhoneData = async () => {
-    const url = `https://openapi.programming-hero.com/api/phones?search=iphone`;
+const loadPhoneData = async (searchText, dataLimit) => {
+    const url = `https://openapi.programming-hero.com/api/phones?search=${searchText}`;
     const res = await fetch(url);
     const phonesData = await res.json();
-    displayPhoneData(phonesData.data);
+    displayPhoneData(phonesData.data, dataLimit);
 }
 
 // display phones
-const displayPhoneData = (phones) => {
+const displayPhoneData = (phones, dataLimit) => {
+    const phonesContainer = document.getElementById('phones-container');
+    phonesContainer.innerHTML = '';
 
+    // btn-show-all and limiting the data
+    const showBtn = document.getElementById('show-all');
+    if (dataLimit && phones.length > 10) {
+        phones = phones.slice(0, 6);
+        showBtn.classList.remove('d-none');
+    }
+    else {
+        showBtn.classList.add('d-none');
+    }
+    // displaing phones
     phones.forEach(phone => {
         console.log(phone);
         const { brand, image, phone_name, slug } = phone;
-        const phonesContainer = document.getElementById('phones-container');
         const phoneDiv = document.createElement('div');
         phoneDiv.classList.add('col');
         phoneDiv.innerHTML = `
@@ -29,4 +40,27 @@ const displayPhoneData = (phones) => {
     });
 }
 
-loadPhoneData();
+// common function for get input value
+const getSearch = (dataLimit) => {
+    const searchText = document.getElementById('search-input').value;
+    loadPhoneData(searchText, dataLimit);
+}
+
+// search input by EventListener click
+document.getElementById('btn-search').addEventListener('click', function () {
+    getSearch(6);
+});
+
+// search input by EventListener keypress
+document.getElementById('search-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        getSearch(6);
+    }
+});
+
+// worst way of loading and limiting data
+document.getElementById('btn-show-all').addEventListener('click', function () {
+    getSearch();
+})
+
+loadPhoneData('phone');
