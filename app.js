@@ -103,4 +103,4 @@ const loadPhoneDetails = async (id) => {
 }
 
 
-loadPhoneData('phone');
+//loadPhoneData('phone');
